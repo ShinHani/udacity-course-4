@@ -47,7 +47,7 @@ functions:
   Auth:
     handler: src/lambda/auth/auth0Authorizer.handler
 
-  # GetTodos: Only allow Querry() on TODOS_TABLE
+  # GetTodos: Get Item
   GetTodos:
     handler: src/lambda/http/getTodos.handler
     events:
@@ -64,7 +64,7 @@ functions:
       Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODOS_TABLE}
 
 
-  # CreateTodo: Validate HTTP Requests by API Gateway
+  # CreateTodo: Create Item
   CreateTodo:
     handler: src/lambda/http/createTodo.handler
     events:
@@ -85,7 +85,7 @@ functions:
       Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODOS_TABLE}
 
 
-  # UpdateTodo: Validate HTTP request by API gateway
+  # UpdateTodo: Update Item
   UpdateTodo:
     handler: src/lambda/http/updateTodo.handler
     events:
@@ -105,7 +105,7 @@ functions:
       - 'dynamodb:Query'
       Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODOS_TABLE}
 
-  # DeleteTodo: allow to DeleteItem
+  # DeleteTodo: Delete Item
   DeleteTodo:
     handler: src/lambda/http/deleteTodo.handler
     events:
@@ -121,7 +121,7 @@ functions:
       - 'dynamodb:DeleteItem'
       Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODOS_TABLE}
 
-  # GenerateUploadUrl: allow to PutObject & GetObject
+  # GenerateUploadUrl for Put & Get Object
   GenerateUploadUrl:
     handler: src/lambda/http/generateUploadUrl.handler
     events:
@@ -156,7 +156,7 @@ resources:
         RestApiId:
           Ref: ApiGatewayRestApi
 
-    # Allocate "TodosTable" DynamoDB with local secondary index (LSI) using the same partion key
+    # DynamoDB Table with Local and Secondary Indexes
     TodosTable:
       Type: AWS::DynamoDB::Table
       Properties:
@@ -177,14 +177,14 @@ resources:
         LocalSecondaryIndexes:
         - IndexName: ${self:provider.environment.TODOS_CREATED_AT_INDEX}
           KeySchema:
-          - AttributeName: userId #Same partion key
+          - AttributeName: userId #Partion key
             KeyType: HASH
           - AttributeName: createdAt #index
             KeyType: RANGE
           Projection:
-            ProjectionType: ALL # What attributes will be copied to an index
+            ProjectionType: ALL
 
-    # Allocate S3 Bucket for attachment
+    # S3 Bucket
     AttachmentsBucket:
       Type: AWS::S3::Bucket
       Properties:
