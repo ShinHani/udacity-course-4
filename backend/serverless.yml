@@ -1,3 +1,5 @@
+org: shincn
+app: serverless-todo-app
 service: serverless-todo-app
 
 plugins:
@@ -23,8 +25,8 @@ provider:
 
   # Environment variables
   environment:
-    TODOS_TABLE: Todo-Table-${self:provider.stage}
-    TODOS_CREATED_AT_INDEX: CreatedAtIdx
+    ITEM_TABLE: Item-Table-${self:provider.stage}
+    ITEM_CREATED_AT_INDEX: CreatedAtId
     ATTACHMENT_BUCKET: files-todo-s3-bucket-${self:provider.stage}
     SIGNED_URL_EXPIRATION: 300
 
@@ -61,7 +63,7 @@ functions:
     - Effect: 'Allow'
       Action:
       - 'dynamodb:Query'
-      Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODOS_TABLE}
+      Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.ITEM_TABLE}
 
 
   # CreateTodo: Create Item
@@ -75,14 +77,14 @@ functions:
         cors: true
         request:
           schemas:
-            application/json: ${file(models/create-todo-request.json)}
+            application/json: ${models/create-todo-request.json}
     iamRoleStatementsInherit: true
     iamRoleStatements:
     - Effect: 'Allow'
       Action:
       - 'dynamodb:GetItem'
       - 'dynamodb:PutItem'
-      Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODOS_TABLE}
+      Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.ITEM_TABLE}
 
 
   # UpdateTodo: Update Item
@@ -96,14 +98,14 @@ functions:
         cors: true
         request:
           schemas:
-            application/json: ${file(models/update-todo-request.json)}
+            application/json: ${models/update-todo-request.json}
     iamRoleStatementsInherit: true
     iamRoleStatements:
     - Effect: 'Allow'
       Action:
       - 'dynamodb:UpdateItem'
       - 'dynamodb:Query'
-      Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODOS_TABLE}
+      Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.ITEM_TABLE}
 
   # DeleteTodo: Delete Item
   DeleteTodo:
@@ -119,7 +121,7 @@ functions:
     - Effect: 'Allow'
       Action:
       - 'dynamodb:DeleteItem'
-      Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODOS_TABLE}
+      Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.ITEM_TABLE}
 
   # GenerateUploadUrl for Put & Get Object
   GenerateUploadUrl:
@@ -141,7 +143,7 @@ functions:
       Action:
       - 'dynamodb:UpdateItem'
       - 'dynamodb:Query'
-      Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODOS_TABLE}
+      Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.ITEM_TABLE}
 
 resources:
   Resources:
@@ -157,7 +159,7 @@ resources:
           Ref: ApiGatewayRestApi
 
     # DynamoDB Table with Local and Secondary Indexes
-    TodosTable:
+    ItemDynamoTable:
       Type: AWS::DynamoDB::Table
       Properties:
         AttributeDefinitions:
@@ -173,9 +175,9 @@ resources:
         - AttributeName: todoId #Sort key
           KeyType: RANGE
         BillingMode: PAY_PER_REQUEST
-        TableName: ${self:provider.environment.TODOS_TABLE}
+        TableName: ${self:provider.environment.ITEM_TABLE}
         LocalSecondaryIndexes:
-        - IndexName: ${self:provider.environment.TODOS_CREATED_AT_INDEX}
+        - IndexName: ${self:provider.environment.ITEM_CREATED_AT_INDEX}
           KeySchema:
           - AttributeName: userId #Partion key
             KeyType: HASH
