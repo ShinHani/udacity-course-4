@@ -1,6 +1,6 @@
 org: shincn
-app: serverless-todo-app
-service: serverless-todo-app
+app: serverless-todo-app-v2
+service: serverless-todo-app-v2
 
 plugins:
 - serverless-iam-roles-per-function
@@ -27,7 +27,7 @@ provider:
   environment:
     ITEM_TABLE: Item-Table-${self:provider.stage}
     ITEM_CREATED_AT_INDEX: CreatedAtId
-    ATTACHMENT_BUCKET: files-todo-s3-bucket-${self:provider.stage}
+    ATTACHMENT_BUCKET: udacity-todos-${self:provider.stage}
     SIGNED_URL_EXPIRATION: 300
 
   logs:
@@ -161,6 +161,7 @@ resources:
     # DynamoDB Table with Local and Secondary Indexes
     ItemDynamoTable:
       Type: AWS::DynamoDB::Table
+      DeletionPolicy: Delete
       Properties:
         AttributeDefinitions:
         - AttributeName: userId
