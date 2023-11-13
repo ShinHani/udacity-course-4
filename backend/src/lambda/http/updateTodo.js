@@ -25,6 +25,10 @@ export const handler = middy()
     logger.info(`updateItem = ${updatedItem}`, { function: "handler()" })
 
     return {
-      statusCode: 200
+      statusCode: 200,
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Credentials': true
+      }
     }
   })
