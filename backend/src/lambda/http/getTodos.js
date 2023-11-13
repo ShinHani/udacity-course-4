@@ -1,11 +1,11 @@
 import middy from '@middy/core'
 import cors from '@middy/http-cors'
 import httpErrorHandler from '@middy/http-error-handler'
-import { updateTodo } from '../../businessLogic/todos.mjs'
+import { getAllTodos } from '../../businessLogic/todos.mjs'
 import { createLogger } from '../../utils/logger.mjs'
 import { getUserId } from '../utils.mjs'
 
-const logger = createLogger('http/updateTodos.js')
+const logger = createLogger('http/getTodos.js')
 
 export const handler = middy()
   .use(httpErrorHandler())
@@ -14,17 +14,20 @@ export const handler = middy()
       credentials: true
     })
   )
-  .handler(async event => {
-    const todoId = event.pathParameters.todoId
-    const updatedTodo = JSON.parse(event.body)
+  .handler(async (event) => {
+    // TODO: Get all TODO items for a current user
+    //logger.info("Processing event: ", event)
+    logger.info(`Processing event: ${event} `, { function: "handler()" })
 
-    // TODO: Update a TODO item with the provided id using values in the "updatedTodo" object
-    /* Get userId */
+    /* Get User ID */
     const userId = getUserId(event)
-    const updatedItem = await updateTodo(todoId, updatedTodo, userId)
-    logger.info(`updateItem = ${updatedItem}`, { function: "handler()" })
+
+    const todos = await getAllTodos(userId)
 
     return {
-      statusCode: 200
+      statusCode: 200,
+      body: JSON.stringify({
+        items: todos
+      })
     }
   })
