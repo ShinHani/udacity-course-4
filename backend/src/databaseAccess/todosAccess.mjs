@@ -8,7 +8,7 @@ const logger = createLogger('databaseAccess/todosAccess.mjs')
 export class TodoAccess {
     constructor(
         documentClient = AWSXRay.captureAWSv3Client(new DynamoDB()),
-        todosTable = process.env.TODOS_TABLE
+        todosTable = process.env.ITEM_TABLE
     ) {
         this.documentClient = documentClient
         this.todosTable = todosTable
